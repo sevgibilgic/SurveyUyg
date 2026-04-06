@@ -1,0 +1,104 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>SurveyUyg - Kayıt Ol</title>
+
+    <link href="~/sbadmin/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
+    <link href="~/sbadmin/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-primary">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-6 col-lg-7 col-md-9">
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h1 class="h4 text-gray-900 mb-4">Yeni Hesap Oluştur!</h1>
+                            </div>
+                            <form class="user">
+                                <div class="form-group">
+                                    <input type="text" class="form-control form-control-user" id="txtFullName" placeholder="Ad Soyad">
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control form-control-user" id="txtUserName" placeholder="Kullanıcı Adı">
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" class="form-control form-control-user" id="txtEmail" placeholder="E-posta Adresi">
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control form-control-user" id="txtPassword" placeholder="Parola">
+                                </div>
+                                <button type="button" id="btnSignIn" class="btn btn-primary btn-user btn-block">Hesabı Kaydet</button>
+                            </form>
+                            <hr>
+                            <div id="divResult" class="alert" style="display:none; text-align:center;"></div>
+                            <div class="text-center">
+                                <a class="small" href="/Home/Login">Zaten bir hesabınız var mı? Giriş yapın!</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/sbadmin/vendor/jquery/jquery.min.js"></script>
+    <script src="~/sbadmin/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#btnSignIn").click(function () {
+                var signupData = {
+                    FullName: $("#txtFullName").val(),
+                    UserName: $("#txtUserName").val(),
+                    Email: $("#txtEmail").val(),
+                    Password: $("#txtPassword").val()
+                };
+
+                if (!signupData.UserName || !signupData.Password || !signupData.Email) {
+                    showResult("Lütfen zorunlu alanları doldurun!", "alert-warning");
+                    return;
+                }
+
+                $.ajax({
+                    url: "https://localhost:7184/api/User/Register",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(signupData),
+                    success: function (response) {
+                        showResult("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz.", "alert-success");
+                        // Sayfa adı SignIn olduğu için yönlendirmeyi kontrol et
+                        setTimeout(function () { window.location.href = "/Home/Login"; }, 2000);
+                    },
+                    error: function (xhr) {
+                        var errorText = "Kayıt başarısız.";
+                        if (xhr.responseJSON) {
+                            if (Array.isArray(xhr.responseJSON)) {
+                                errorText = xhr.responseJSON.map(err => err.description).join("<br>");
+                            } else if (xhr.responseJSON.message) {
+                                errorText = xhr.responseJSON.message;
+                            }
+                        }
+                        showResult(errorText, "alert-danger");
+                    }
+                });
+            });
+
+            function showResult(message, className) {
+                $("#divResult").stop(true, true).hide().removeClass("alert-success alert-danger alert-warning")
+                               .addClass(className).html(message).fadeIn();
+            }
+        });
+    </script>
+</body>
+</html>

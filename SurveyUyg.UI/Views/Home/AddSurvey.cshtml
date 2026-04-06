@@ -1,0 +1,144 @@
+﻿@{
+    ViewData["Title"] = "Yeni Anket Ekle";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-primary text-white d-flex justify-content-between">
+                    <h6 class="m-0 font-weight-bold">Dinamik Anket Oluşturma Paneli</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Anket Başlığı</label>
+                            <input type="text" id="surveyTitle" class="form-control border-left-primary" placeholder="Anket ismini girin...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="font-weight-bold">Açıklama</label>
+                            <input type="text" id="surveyDesc" class="form-control border-left-primary" placeholder="Anket hakkında kısa bilgi...">
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div id="questionsContainer">
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-info btn-icon-split" onclick="addQuestion()">
+                            <span class="icon text-white-50"><i class="fas fa-plus"></i></span>
+                            <span class="text">Yeni Soru Ekle</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-footer text-right">
+                    <button type="button" class="btn btn-success btn-lg" onclick="saveAll()">
+                        <i class="fas fa-save"></i> Anketi Sisteme Kaydet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/sbadmin/vendor/jquery/jquery.min.js"></script>
+<script>
+    let qIdx = 0;
+
+    function addQuestion() {
+        qIdx++;
+        const qTemplate = `
+            <div class="card mb-4 question-card shadow-sm border-bottom-info" id="qContainer_${qIdx}">
+                <div class="card-body">
+                    <div class="form-group">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="text-info font-weight-bold">Soru #${qIdx}</label>
+                            <button class="btn btn-sm btn-circle btn-danger" onclick="$('#qContainer_${qIdx}').remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <input type="text" class="form-control question-text" placeholder="Soru metni nedir?">
+                    </div>
+
+                    <div class="options-area ml-4" id="optionsContainer_${qIdx}">
+                        <label class="small font-weight-bold text-gray-600">Seçenekler / Şıklar</label>
+                        <!-- Şıklar buraya eklenecek -->
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-outline-info mt-2 ml-4" onclick="addOption(${qIdx})">
+                        <i class="fas fa-plus-circle"></i> Şık Ekle
+                    </button>
+                </div>
+            </div>`;
+        $("#questionsContainer").append(qTemplate);
+    }
+
+    function addOption(questionId) {
+        const oTemplate = `
+            <div class="input-group mb-2 option-row">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-dot-circle"></i></span>
+                </div>
+                <input type="text" class="form-control form-control-sm option-text" placeholder="Seçenek metni...">
+                <div class="input-group-append">
+                    <button class="btn btn-danger btn-sm" onclick="$(this).closest('.option-row').remove()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>`;
+        $(`#optionsContainer_${questionId}`).append(oTemplate);
+    }
+
+            function saveAll() {
+        const title = $("#surveyTitle").val();
+        if (!title) { alert("Lütfen bir anket başlığı girin!"); return; }
+
+        const surveyDto = {
+            Title: title,
+            Description: $("#surveyDesc").val(),
+            AppUserId: null,
+            Questions: []
+        };
+
+        $(".question-card").each(function () {
+            const qObj = {
+                QuestionText: $(this).find(".question-text").val(),
+                QuestionOptions: []
+            };
+
+            $(this).find(".option-row").each(function () {
+                const optVal = $(this).find(".option-text").val();
+                if (optVal) {
+                    qObj.QuestionOptions.push({ OptionText: optVal });
+                }
+            });
+
+            if (qObj.QuestionText) {
+                surveyDto.Questions.push(qObj);
+            }
+        });
+
+        const token = localStorage.getItem("token");
+        $.ajax({
+            url: "https://localhost:7184/api/Surveys",
+            type: "POST",
+            contentType: "application/json",
+            headers: { "Authorization": "Bearer " + token },
+            data: JSON.stringify(surveyDto),
+            success: function (res) {
+                if (res.status) {
+                    alert("Anket başarıyla eklendi!");
+                    window.location.href = "/Home/SurveysControl";
+                } else {
+                    alert("Hata: " + res.message);
+                }
+            },
+            error: function (xhr) {
+                console.error("Giden Veri:", surveyDto);
+                console.error("Gelen Hata:", xhr.responseText);
+                alert("Doğrulama hatası! Lütfen tüm alanları kontrol edin.");
+            }
+        });
+    }
+</script>

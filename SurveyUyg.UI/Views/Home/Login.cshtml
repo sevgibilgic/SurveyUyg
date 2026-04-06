@@ -1,0 +1,88 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>SurveyUyg - Giriş Yap</title>
+
+    <link href="~/sbadmin/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
+    <link href="~/sbadmin/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-primary">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-6 col-lg-6 col-md-9">
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h1 class="h4 text-gray-900 mb-4">Üye Giriş Ekranı</h1>
+                            </div>
+
+                            <form class="user">
+                                <div class="form-group">
+                                    <input type="text" class="form-control form-control-user" id="txtUserName" placeholder="Kullanıcı Adı">
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control form-control-user" id="txtPassword" placeholder="Parola">
+                                </div>
+                                <button type="button" class="btn btn-primary btn-user btn-block" id="btnLogin">Giriş Yap</button>
+                                <a href="/Home/SignIn" class="btn btn-google btn-user btn-block">
+                                    <i class="fas fa-user-plus fa-fw"></i> Yeni Hesap Oluştur
+                                </a>
+                            </form>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/sbadmin/vendor/jquery/jquery.min.js"></script>
+    <script src="~/sbadmin/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#btnLogin").click(function () {
+                var loginData = {
+                    UserName: $("#txtUserName").val(),
+                    Password: $("#txtPassword").val()
+                };
+
+                if (loginData.UserName == "" || loginData.Password == "") {
+                    alert("Lütfen tüm alanları doldurun.");
+                    return;
+                }
+
+                $.ajax({
+                    url: "https://localhost:7184/api/User/Login",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(loginData),
+                    success: function (res) {
+                        if (res && res.token) {
+                            localStorage.setItem("token", res.token);
+                            alert("Giriş başarılı! Admin paneline yönlendiriliyorsunuz.");
+                            window.location.href = "/Home/Surveys";
+                        } else {
+                            alert("Giriş başarısız: Sunucudan token dönmedi.");
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error("Hata:", xhr.responseText);
+                        alert("Giriş yapılamadı. Kullanıcı adı veya şifre hatalı olabilir.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

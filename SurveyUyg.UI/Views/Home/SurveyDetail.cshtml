@@ -1,0 +1,137 @@
+﻿@{
+    ViewData["Title"] = "Anket Detayı";
+    Layout = "_LayoutAdmin";
+}
+
+<h1 id="testIdDisplay">Sayfadaki ID: @ViewBag.SurveyId</h1>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary" id="surveyTitle">Yükleniyor...</h6>
+        </div>
+        <div class="card-body">
+            <p id="surveyDesc" class="text-muted"></p>
+            <hr />
+            <div id="questionsContainer">
+            </div>
+            <button id="btnSaveAnswers" class="btn btn-success mt-4 shadow">
+                <i class="fas fa-save mr-2"></i> Cevapları Gönder
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="~/sbadmin/vendor/jquery/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var pathSegments = window.location.pathname.split('/');
+        var surveyId = pathSegments[pathSegments.length - 1];
+
+        loadSurveyDetail();
+
+        function loadSurveyDetail() {
+            if (!surveyId || isNaN(surveyId)) {
+                $("#surveyTitle").text("Hata: Geçerli bir ID bulunamadı.");
+                return;
+            }
+
+            $.ajax({
+                url: "https://localhost:7184/api/Surveys/" + surveyId,
+                type: "GET",
+                headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
+                success: function (res) {
+                    $("#surveyTitle").text(res.title || "Başlık Yok");
+                    $("#surveyDesc").text(res.description || "");
+
+                    var html = "";
+                    var questions = res.questions || [];
+                    if (questions.length > 0) {
+                        $.each(questions, function (index, q) {
+                            html += `
+                                <div class="card mb-3 border-left-success shadow">
+                                    <div class="card-body">
+                                        <p class="font-weight-bold">${index + 1}. ${q.questionText}</p>
+                                        <input type="text" class="form-control question-input"
+                                               data-qid="${q.questionId}" placeholder="Cevabınızı yazın...">
+                                    </div>
+                                </div>`;
+                        });
+                    } else {
+                        html = '<div class="alert alert-info">Soru bulunamadı.</div>';
+                    }
+                    $("#questionsContainer").html(html);
+                },
+                error: function(xhr) {
+                    console.log("Detay yükleme hatası:", xhr.responseText);
+                }
+            });
+        }
+
+            $("#btnSaveAnswers").click(function () {
+        var currentPathSegments = window.location.pathname.split('/');
+        var currentSurveyId = currentPathSegments[currentPathSegments.length - 1];
+        var token = localStorage.getItem("token");
+
+        if (!token) {
+            alert("Lütfen giriş yapın.");
+            return;
+        }
+
+        var payload = parseJwt(token);
+        var userId = payload["nameid"] || payload["sub"] || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+
+        var answers = [];
+        $(".question-input").each(function () {
+            var qid = $(this).data("qid");
+            var val = $(this).val();
+
+            if (val && val.trim() !== "") {
+                answers.push({
+                    QuestionId: parseInt(qid),
+                    AnswerText: val,
+                    SelectedOptionId: 0
+                });
+            }
+        });
+
+        if (answers.length === 0) {
+            alert("Lütfen en az bir cevap yazın.");
+            return;
+        }
+
+        var surveyData = {
+            SurveyId: parseInt(currentSurveyId),
+            UserId: userId,
+            Answers: answers
+        };
+
+        $.ajax({
+            url: "https://localhost:7184/api/Answers",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(surveyData),
+            headers: { "Authorization": "Bearer " + token },
+            success: function (res) {
+                alert(res.message || "Anket başarıyla kaydedildi!");
+                window.location.href = "/Home/Surveys";
+            },
+            error: function (xhr) {
+                console.error("Gönderilen Veri:", surveyData);
+                console.error("Hata Mesajı:", xhr.responseText);
+                alert("Kaydedilemedi. Hata: " + xhr.responseText);
+            }
+        });
+    });
+    });
+
+    function parseJwt(token) {
+        try {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(window.atob(base64));
+        } catch (e) {
+            return {};
+        }
+    }
+</script>

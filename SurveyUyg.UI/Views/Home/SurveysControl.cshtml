@@ -1,0 +1,100 @@
+﻿@{
+    ViewData["Title"] = "Anket Yönetimi";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 bg-dark text-white d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold">Sistemdeki Tüm Anketler</h6>
+            <button onclick="loadSurveys()" class="btn btn-sm btn-outline-light">
+                <i class="fas fa-sync-alt"></i> Listeyi Yenile
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover shadow-sm" id="surveyTable" width="100%" cellspacing="0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th width="50">ID</th>
+                            <th>Anket Başlığı</th>
+                            <th>Oluşturulma Tarihi</th>
+                            <th width="100" class="text-center">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="surveyListBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/sbadmin/vendor/jquery/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "/Home/Login";
+            return;
+        }
+
+        loadSurveys();
+    });
+
+        function loadSurveys() {
+        const token = localStorage.getItem("token");
+        $.ajax({
+            url: "https://localhost:7184/api/Surveys/ListActive",
+            type: "GET",
+            headers: { "Authorization": "Bearer " + token },
+            success: function (data) {
+                let rows = "";
+                data.forEach(s => {
+                    console.log("Gelen veri:", s);
+
+                    let currentId = s.surveyId || s.id;
+
+                    rows += `
+                        <tr id="row_${currentId}">
+                            <td>${currentId}</td>
+                            <td><b class="text-primary">${s.title}</b></td>
+                            <td>${s.createdAt ? new Date(s.createdAt).toLocaleDateString('tr-TR') : "-"}</td>
+                            <td class="text-center">
+                                <button class="btn btn-danger btn-sm" onclick="deleteSurvey(${currentId})">
+                                    <i class="fas fa-trash-alt"></i> Sil
+                                </button>
+                            </td>
+                        </tr>`;
+                });
+                $("#surveyListBody").html(rows);
+            },
+            error: function (xhr) {
+                console.error("Liste yüklenemedi:", xhr.responseText);
+            }
+        });
+    }
+
+    function deleteSurvey(id) {
+        if (!confirm("Bu anketi sildiğinizde bağlı tüm sorular ve cevaplar da silinebilir. Emin misiniz?")) return;
+
+        const token = localStorage.getItem("token");
+        $.ajax({
+            url: "https://localhost:7184/api/Surveys/" + id,
+            type: "DELETE",
+            headers: { "Authorization": "Bearer " + token },
+            success: function (res) {
+                if(res.status) {
+                    $(`#row_${id}`).fadeOut(400, function() {
+                        $(this).remove();
+                    });
+                } else {
+                    alert("Hata: " + res.message);
+                }
+            },
+            error: function (xhr) {
+                alert("Silme işlemi başarısız oldu.");
+            }
+        });
+    }
+</script>

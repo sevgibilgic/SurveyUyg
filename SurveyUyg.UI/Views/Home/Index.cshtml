@@ -1,0 +1,124 @@
+﻿@{
+    ViewData["Title"] = "Profil";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container mt-5">
+    <div class="card shadow col-md-8 offset-md-2 p-0 overflow-hidden">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="m-0"><i class="fas fa-user-cog mr-2"></i>Hesap Ayarları</h5>
+        </div>
+        <div class="card-body p-4">
+            <form id="fullUpdateForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">Kullanıcı Adı</label>
+                            <input type="text" id="inpUsername" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-weight-bold text-muted">Tam Ad Soyad (Değiştirilemez)</label>
+                            <input type="text" id="inpName" class="form-control bg-light" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="font-weight-bold">E-Posta Adresi</label>
+                            <input type="email" id="inpEmail" class="form-control" required>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary btn-block mt-4" data-toggle="collapse" data-target="#passwordSection">
+                            <i class="fas fa-key mr-2"></i> Şifre Değiştirme Panelini Aç
+                        </button>
+                    </div>
+                </div>
+
+                <div id="passwordSection" class="collapse mt-4 p-3 bg-light border rounded">
+                    <h6 class="text-danger font-weight-bold border-bottom pb-2 mb-3">Şifre Güncelleme</h6>
+                    <div class="form-group">
+                        <label>Mevcut Şifre</label>
+                        <input type="password" id="currentPass" class="form-control" placeholder="Mevcut şifreniz">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Yeni Şifre</label>
+                            <input type="password" id="newPass" class="form-control" placeholder="Yeni şifre">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Yeni Şifre (Tekrar)</label>
+                            <input type="password" id="confirmPass" class="form-control" placeholder="Tekrar">
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <div class="text-right">
+                    <button type="submit" class="btn btn-success btn-lg px-5 shadow">
+                        <i class="fas fa-check-circle mr-2"></i> Değişiklikleri Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/sbadmin/vendor/jquery/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const token = localStorage.getItem("token");
+        if (!token) { window.location.href = "/Home/Login"; return; }
+
+        const payload = parseJwt(token);
+
+        $("#inpUsername").val(payload["unique_name"] || "");
+        $("#inpEmail").val(payload["email"] || "");
+
+        const fullName = payload["given_name"] || payload["name"] || payload["unique_name"] || "";
+        $("#inpName").val(fullName);
+
+        $("#fullUpdateForm").submit(function (e) {
+            e.preventDefault();
+
+            if($("#newPass").val() !== "" && $("#newPass").val() !== $("#confirmPass").val()){
+                alert("Yeni şifreler eşleşmiyor!");
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append("UserName", $("#inpUsername").val());
+            formData.append("Email", $("#inpEmail").val());
+
+            if($("#newPass").val() !== ""){
+                formData.append("CurrentPassword", $("#currentPass").val());
+                formData.append("NewPassword", $("#newPass").val());
+            }
+
+            $.ajax({
+                url: "https://localhost:7184/api/User/UpdateProfile",
+                type: "PUT",
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: { "Authorization": "Bearer " + token },
+                success: function () {
+                    alert("Bilgiler güncellendi! Yeni kullanıcı adı veya e-posta ile oturum yenileniyor.");
+                    localStorage.removeItem("token");
+                    window.location.href = "/Home/Login";
+                },
+                error: function (xhr) {
+                    alert("Hata: " + xhr.responseText);
+                }
+            });
+        });
+    });
+
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) { return {}; }
+    }
+</script>

@@ -1,0 +1,64 @@
+﻿@{
+    ViewData["Title"] = "Gizlilik Politikası";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Son güncelleme: @DateTime.Now.ToString("dd.MM.yyyy")</p>
+            <hr />
+
+            <section class="mb-4">
+                <h5 class="text-primary"><i class="fas fa-shield-alt mr-2"></i>1. Veri Toplama</h5>
+                <p>Hizmetlerimizi sunabilmek amacıyla aşağıdaki kişisel verileri toplamaktayız:</p>
+                <ul>
+                    <li><strong>Kimlik Bilgileri:</strong> Adınız ve soyadınız.</li>
+                    <li><strong>İletişim Bilgileri:</strong> E-posta adresiniz.</li>
+                    <li><strong>Hesap Bilgileri:</strong> Kullanıcı adınız ve güvenliğiniz için şifrelenmiş parola verileriniz.</li>
+                </ul>
+            </section>
+
+            <section class="mb-4">
+                <h5 class="text-primary"><i class="fas fa-user-check mr-2"></i>2. Kullanım Amacı</h5>
+                <p>Toplanan veriler şu amaçlarla kullanılır:</p>
+                <ul>
+                    <li>Profilinizi oluşturmak ve yönetmek.</li>
+                    <li>Sistem güncellemeleri ve teknik destek hakkında sizi bilgilendirmek.</li>
+                    <li>Hizmet kalitemizi artırmak ve kullanıcı deneyimini iyileştirmek.</li>
+                </ul>
+            </section>
+
+            <section class="mb-4">
+                <h5 class="text-primary"><i class="fas fa-lock mr-2"></i>3. Veri Güvenliği</h5>
+                <p>
+                    Verileriniz, yetkisiz erişimlere karşı endüstri standardı olan güvenlik protokolleri ve şifreleme yöntemleriyle korunmaktadır.
+                    Şifreleriniz sistemlerimizde ham metin olarak değil, güvenli hash algoritmalarıyla saklanır.
+                </p>
+            </section>
+
+            <section class="mb-4">
+                <h5 class="text-primary"><i class="fas fa-share-alt mr-2"></i>4. Üçüncü Taraflarla Paylaşım</h5>
+                <p>
+                    Kişisel verileriniz, yasal zorunluluklar haricinde hiçbir şekilde üçüncü şahıs veya kurumlarla ticari amaçlarla paylaşılmaz ve satılmaz.
+                </p>
+            </section>
+
+            <section class="mb-4">
+                <h5 class="text-primary"><i class="fas fa-user-edit mr-2"></i>5. Kullanıcı Hakları</h5>
+                <p>
+                    Kullanıcılar, sistem üzerindeki verilerini güncelleme, silme veya verilerine erişme hakkına sahiptir.
+                    Bu işlemler için profil ayarları sayfasını kullanabilir veya bizimle iletişime geçebilirsiniz.
+                </p>
+            </section>
+
+            <div class="alert alert-info border-0 shadow-sm">
+                <i class="fas fa-info-circle mr-2"></i>
+                Bu politika hakkında sorularınız için lütfen <strong>destek@domain.com</strong> adresi üzerinden bizimle iletişime geçin.
+            </div>
+        </div>
+    </div>
+</div>

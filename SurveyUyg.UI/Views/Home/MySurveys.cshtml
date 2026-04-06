@@ -1,0 +1,84 @@
+﻿@{
+    ViewData["Title"] = "Anketler";
+	Layout = "_LayoutAdmin";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Aktif Anketler</h1>
+    </div>
+
+    <div class="row" id="surveyContainer">
+        <div class="col-12 text-center" id="loader">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Yükleniyor...</span>
+            </div>
+            <p class="mt-2">Anketler yükleniyor...</p>
+        </div>
+    </div>
+</div>
+
+<script src="~/sbadmin/vendor/jquery/jquery.min.js"></script>
+
+<script>
+        $(document).ready(function () {
+        getSurveys();
+
+        function getSurveys() {
+            var token = localStorage.getItem("token");
+
+            $.ajax({
+                url: "https://localhost:7184/api/Surveys/MySurveys",
+                type: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
+                success: function (data) {
+                    $("#loader").hide();
+                    var cardHtml = "";
+
+                    if (data.length === 0) {
+                        cardHtml = `
+                            <div class="col-12 text-center">
+                                <div class="alert alert-warning shadow">
+                                    <h4 class="font-weight-bold">Henüz bir anket oluşturmamışsınız.</h4>
+                                    <p>Yeni bir anket oluşturmak için "Anket Ekle" sayfasını kullanabilirsiniz.</p>
+                                    <a href="/Admin/AddSurvey" class="btn btn-primary">Hemen Oluştur</a>
+                                </div>
+                            </div>`;
+                    } else {
+                        $.each(data, function (index, item) {
+                            cardHtml += `
+                                <div class="col-xl-4 col-md-6 mb-4">
+                                    <div class="card border-left-info shadow h-100 py-2">
+                                        <div class="card-body">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col mr-2">
+                                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Anketim</div>
+                                                    <div class="h5 mb-1 font-weight-bold text-gray-800">${item.title}</div>
+                                                    <div class="text-gray-600 small">${item.description || ''}</div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                                </div>
+                                            </div>
+                                            <hr />
+                                            <div class="d-flex justify-content-between">
+                                                <a href="/Home/SurveyDetail/${item.surveyId}" class="btn btn-primary btn-sm">Detay</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                    }
+                    $("#surveyContainer").html(cardHtml);
+                },
+                error: function (xhr) {
+                    $("#loader").hide();
+                    console.error("Hata:", xhr.responseText);
+                    $("#surveyContainer").html('<div class="col-12 text-center text-danger">Anketler yüklenirken bir hata oluştu!</div>');
+                }
+            });
+        }
+    });
+</script>
