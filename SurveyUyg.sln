@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurveyUyg.API", "SurveyUyg.API\SurveyUyg.API.csproj", "{27DD4D77-B592-4123-A49D-56AFC3DA5F03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurveyUyg.UI", "SurveyUyg.UI\SurveyUyg.UI.csproj", "{33C389E7-3D3D-4407-8CA9-437437C04D8C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{27DD4D77-B592-4123-A49D-56AFC3DA5F03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27DD4D77-B592-4123-A49D-56AFC3DA5F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27DD4D77-B592-4123-A49D-56AFC3DA5F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27DD4D77-B592-4123-A49D-56AFC3DA5F03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33C389E7-3D3D-4407-8CA9-437437C04D8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33C389E7-3D3D-4407-8CA9-437437C04D8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33C389E7-3D3D-4407-8CA9-437437C04D8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33C389E7-3D3D-4407-8CA9-437437C04D8C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {728FA2C5-AE85-4935-A3A1-B19A6B1C09C3}
+	EndGlobalSection
+EndGlobal
