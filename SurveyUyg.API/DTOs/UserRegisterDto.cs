@@ -1,4 +1,4 @@
-﻿namespace SurveyUyg.API.Models // Namespace adınızın doğruluğundan emin olun
+﻿namespace SurveyUyg.API.Models
 {
     public class UserRegisterDto
     {

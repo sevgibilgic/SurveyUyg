@@ -77,7 +77,6 @@
                     data: JSON.stringify(signupData),
                     success: function (response) {
                         showResult("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz.", "alert-success");
-                        // Sayfa adı SignIn olduğu için yönlendirmeyi kontrol et
                         setTimeout(function () { window.location.href = "/Home/Login"; }, 2000);
                     },
                     error: function (xhr) {
